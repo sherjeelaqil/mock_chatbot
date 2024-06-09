@@ -1,11 +1,15 @@
 import asyncio
+import json
+import pathlib
 import websockets
-from websockets.exceptions import ConnectionClosedError
+import sys
+sys.path.append(str(pathlib.Path().resolve()))
 from app.message_dispatcher import MessageDispatcher
 from app.user_manager import UserManager
+from websockets.exceptions import ConnectionClosedError
 
 class WebSocketServer:
-    def __init__(self, host='0.0.0.0', port=8080):
+    def __init__(self, host='localhost', port=8080):
         self.host = host
         self.port = port
         self.user_manager = UserManager()
@@ -15,14 +19,19 @@ class WebSocketServer:
         session = self.user_manager.add_session(websocket)
         try:
             async for message in websocket:
-                await self.message_dispatcher.dispatch(session, message)
+                print(f"Received message: {message}")
+                response = await self.message_dispatcher.dispatch(session, message)
+                print(f"Dispatch response: {response}")
+                await websocket.send(response)
         except ConnectionClosedError:
             pass
         finally:
             self.user_manager.remove_session(session.id)
 
     def start(self):
-        loop = asyncio.get_event_loop()
+        print(f"Starting WebSocket server on {self.host}:{self.port}")
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         server = websockets.serve(self.handler, self.host, self.port)
         loop.run_until_complete(server)
         loop.run_forever()

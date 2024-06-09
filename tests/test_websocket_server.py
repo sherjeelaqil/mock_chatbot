@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_websocket():
-    async with websockets.connect("ws://localhost:8765") as websocket:
+    async with websockets.connect("ws://localhost:8080") as websocket:
         await websocket.send(json.dumps({"session_id": "test", "message": "Hello"}))
         response = await websocket.recv()
-        assert "Mock response" in json.loads(response)["response"]
+        assert "Response :" in json.loads(response)["response"]

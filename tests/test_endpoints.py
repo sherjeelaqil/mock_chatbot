@@ -1,4 +1,7 @@
 from fastapi.testclient import TestClient
+import pathlib
+import sys
+sys.path.append(str(pathlib.Path().resolve()))
 from app.main import app
 
 client = TestClient(app)
