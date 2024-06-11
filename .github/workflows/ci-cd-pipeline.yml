@@ -26,8 +26,11 @@ jobs:
     - name: Create Database
       run: python app/database.py
 
+    - name: Run websocket server
+      run: python websocket_server\server.py
+
     - name: Run tests
-      run: pytest
+      run: pytest -sv
 
     - name: Start FastAPI Server
       run: uvicorn app.endpoints:app --host 0.0.0.0 --port 8000 &
