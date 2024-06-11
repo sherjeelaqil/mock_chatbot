@@ -42,7 +42,7 @@ jobs:
         locust --headless -f tests/locustfile.py -u 10 -r 1 --run-time 1m --host http://127.0.0.1:8000
 
     - name: Build Docker image
-      run: docker build -t mock_chatbot .
+      run: docker build -t ${{ secrets.DOCKER_ACCESS_NAME }}/mock_chatbot .
 
     - name: Log in to Docker Hub
       env:
