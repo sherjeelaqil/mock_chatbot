@@ -6,7 +6,8 @@ def init_db(db_path='chat.db'):
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS sessions (
         id TEXT PRIMARY KEY,
-        created_at TEXT
+        created_at TEXT,
+        end_time TEXT
     )
     ''')
     cursor.execute('''

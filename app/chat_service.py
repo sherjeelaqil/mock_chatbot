@@ -62,3 +62,19 @@ class ChatService:
         history = cursor.fetchall()
         conn.close()
         return [{"message": row[0], "response": row[1], "timestamp": row[2]} for row in history]
+
+    def get_session_data(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+        cursor.execute('''SELECT id, created_at, end_time FROM sessions''')
+        history = cursor.fetchall()
+        conn.close()
+        return history
+
+    def get_message_data(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+        cursor.execute('''SELECT id, message, timestamp FROM messages''')
+        history = cursor.fetchall()
+        conn.close()
+        return history

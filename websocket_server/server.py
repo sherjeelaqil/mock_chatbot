@@ -1,41 +1,48 @@
 import asyncio
-import json
-import pathlib
 import websockets
+import json
+import uuid
+import pathlib
 import sys
 sys.path.append(str(pathlib.Path().resolve()))
 from app.message_dispatcher import MessageDispatcher
 from app.user_manager import UserManager
-from websockets.exceptions import ConnectionClosedError
+from app.chat_service import ChatService
+# from app.third_party import ThirdPartyService
+import time
 
 class WebSocketServer:
-    def __init__(self, host='localhost', port=8080):
+    def __init__(self, host='localhost', port=8765):
         self.host = host
         self.port = port
         self.user_manager = UserManager()
-        self.message_dispatcher = MessageDispatcher()
+        self.chat_service = ChatService()
+        self.message_dispatcher = MessageDispatcher(self.chat_service, """ThirdPartyService()""")
 
     async def handler(self, websocket, path):
-        session = self.user_manager.add_session(websocket)
+        session_id = self.chat_service.start_session()
+        self.chat_service.start_session(session_id)
+
         try:
             async for message in websocket:
-                print(f"Received message: {message}")
-                response = await self.message_dispatcher.dispatch(session, message)
-                print(f"Dispatch response: {response}")
-                await websocket.send(response)
-        except ConnectionClosedError:
-            pass
-        finally:
-            self.user_manager.remove_session(session.id)
+                data = json.loads(message)
+                user_message = data.get("message", "")
 
-    def start(self):
-        print(f"Starting WebSocket server on {self.host}:{self.port}")
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        server = websockets.serve(self.handler, self.host, self.port)
-        loop.run_until_complete(server)
-        loop.run_forever()
+                if user_message:
+                    response = self.message_dispatcher.dispatch(session_id, user_message)
+                    await websocket.send(json.dumps({"response": response}))
+
+        except websockets.exceptions.ConnectionClosed as e:
+            print(f"Connection closed: {e}")
+        finally:
+            self.chat_service.end_session(session_id)
+            self.user_manager.end_session(session_id)
+
+    def run(self):
+        start_server = websockets.serve(self.handler, self.host, self.port)
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
 
 if __name__ == "__main__":
     server = WebSocketServer()
-    server.start()
+    server.run()
