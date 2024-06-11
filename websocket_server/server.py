@@ -9,7 +9,8 @@ from app.message_dispatcher import MessageDispatcher
 from app.user_manager import UserManager
 from app.chat_service import ChatService
 from app.analytics import Analytics
-# from app.third_party import ThirdPartyService
+from app.third_party import ThirdPartyService
+
 import time
 
 class WebSocketServer:
@@ -18,7 +19,7 @@ class WebSocketServer:
         self.port = port
         self.user_manager = UserManager()
         self.chat_service = ChatService()
-        self.message_dispatcher = MessageDispatcher()#self.chat_service, ThirdPartyService()
+        self.message_dispatcher = MessageDispatcher()
         self.analytics = Analytics()
 
     async def handler(self, websocket, path):
@@ -28,7 +29,9 @@ class WebSocketServer:
 
         try:
             async for message in websocket:
-                response = await self.message_dispatcher.dispatch(session, message)
+                print(f"Received message: {message}")
+                response = await self.message_dispatcher.dispatch(session, message, ThirdPartyService())
+                print(f"Dispatch response: {response}")
                 await websocket.send(json.dumps({"response": response}))
 
         except websockets.exceptions.ConnectionClosed as e:
