@@ -33,7 +33,7 @@ jobs:
       run: pytest -sv
 
     - name: Start FastAPI Server
-      run: uvicorn app.endpoints:app --host 0.0.0.0 --port 8000 &
+      run: uvicorn app.main:app --host 0.0.0.0 --port 8000 &
       continue-on-error: true
 
     - name: Run Locust Load Test
