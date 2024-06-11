@@ -27,7 +27,7 @@ jobs:
       run: python app/database.py
 
     - name: Run websocket server
-      run: python websocket_server\server.py
+      run: python websocket_server/server.py
 
     - name: Run tests
       run: pytest -sv
