@@ -50,4 +50,4 @@ jobs:
       run: echo $DOCKER_ACCESS_TOKEN | docker login --username ${{ secrets.DOCKER_ACCESS_NAME }} --password-stdin
 
     - name: Push Docker image to Docker Hub
-      run: docker push myusername/mock_chatbot
+      run: docker push ${{ secrets.DOCKER_ACCESS_NAME }}/mock_chatbot
