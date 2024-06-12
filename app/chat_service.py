@@ -2,6 +2,8 @@ import sqlite3
 import uuid
 from datetime import datetime
 from app.chat_model import ChatModel
+from functools import lru_cache
+
 
 class ChatService:
     def __init__(self, db_path='chat.db'):
@@ -45,6 +47,7 @@ class ChatService:
         conn.commit()
         conn.close()
 
+    @lru_cache(maxsize=128)
     def process_message(self, session_id, message):
         response = self.chat_model.generate_response(message)
         conn = self._connect()
@@ -55,6 +58,7 @@ class ChatService:
         conn.close()
         return response
 
+    @lru_cache(maxsize=128)
     def get_session_history(self, session_id):
         conn = self._connect()
         cursor = conn.cursor()

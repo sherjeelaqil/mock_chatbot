@@ -1,5 +1,6 @@
 import time
 from collections import defaultdict
+from functools import lru_cache
 
 class Analytics:
     def __init__(self):
@@ -17,7 +18,7 @@ class Analytics:
 
     def message_sent(self, session_id):
         self.message_count[session_id] += 1
-
+    @lru_cache(maxsize=128)
     def get_statistics(self):
         total_sessions = len(self.message_count)
         total_messages = sum(self.message_count.values())
